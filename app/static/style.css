@@ -1,0 +1,194 @@
+:root{
+  --font:'Prompt',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+  --bg:#f8f9fa; --text:#202124; --border:#dadce0;
+  --prim:#4285f4; --prim-strong:#174ea6;
+  --shadow-1:0 2px 10px rgba(0,0,0,.12);
+  --shadow-2:0 16px 40px rgba(0,0,0,.18);
+}
+
+/* ========== Base ========== */
+*{ box-sizing:border-box }
+html,body{
+  height:100%; margin:0; background:#fff; color:var(--text);
+  font-family:var(--font);
+}
+#map{ position:fixed; inset:0; background:#eaf1fb }
+
+/* ========== Floating Controls (search + nickname + buttons) ========== */
+.controls{
+  position:fixed;
+  left:12px; right:12px;
+  top:calc(env(safe-area-inset-top, 0px) + 8px);
+  z-index:1001;
+  display:flex; align-items:center; gap:10px;
+  justify-content:flex-start; /* ชิดซ้าย */
+}
+.controls-row{
+  display:flex; align-items:center; gap:10px;
+  width:100%; justify-content:flex-start;
+  flex-wrap:wrap; /* กันล้นจอเล็ก */
+}
+
+/* ---- Searchbox ---- */
+.searchbox{
+  position:relative;
+  display:flex; align-items:center;
+  width:70%; max-width:250px;
+  background:#fff; border-radius:28px; border:1px solid var(--border);
+  overflow:visible; box-shadow:var(--shadow-1);
+}
+.searchbox:focus-within{
+  background:#fff; border-color:#e0e3e7;
+  box-shadow:0 2px 8px rgba(66,133,244,.12), 0 8px 24px rgba(66,133,244,.10);
+}
+.searchbox input{
+  flex:1 1 auto; min-width:0; border:0; outline:0; background:transparent;
+  padding:12px 14px; padding-right:44px; font-size:16px;
+}
+.searchbox button{
+  position:absolute; top:50%; right:6px; transform:translateY(-50%);
+  width:32px; height:32px; padding:0; border:0; background:transparent;
+  color:#4285f4; display:flex; align-items:center; justify-content:center; cursor:pointer;
+}
+.searchbox button i{ font-size:16px }
+.searchbox button:hover{ color:var(--prim) }
+.searchbox button:active{ transform:translateY(-49%) }
+
+/* ---- Autocomplete ---- */
+.ac{
+  position:absolute; left:6px; right:6px; top:110%;
+  background:#fff; border:1px solid var(--border); border-radius:12px;
+  box-shadow:var(--shadow-2); list-style:none; margin:6px 0 0; padding:6px 0;
+  max-height:50vh; overflow:auto; display:none; z-index:2000;
+}
+.ac li{ display:flex; gap:10px; padding:10px 12px; cursor:pointer }
+.ac li:hover, .ac li.active{ background:#eef4ff }
+.ac-main{ font-weight:600 }
+.ac-sub{
+  color:#5f6368; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; max-width:300px;
+}
+
+/* ---- Nickname box ---- */
+.nickbox{
+  display:flex; align-items:center; gap:8px;
+  background:#fff; border:1px solid var(--border); border-radius:28px;
+  padding:6px 8px; box-shadow:var(--shadow-1);
+  max-width:260px;
+}
+.nickbox input{
+  flex:1 1 auto; min-width:0; border:0; outline:0; background:transparent;
+  font-size:14px; padding:6px 4px 6px 8px;
+}
+.nickbox button{
+  border:0; border-radius:20px; padding:6px 12px; cursor:pointer;
+  background:#eef4ff; color:var(--prim);
+}
+.nickbox button:hover{ background:#e1ecff }
+
+/* ---- Top-right buttons ---- */
+.top-right-buttons{
+  position:fixed;
+  top:calc(env(safe-area-inset-top, 0px) + 12px);
+  right:calc(env(safe-area-inset-right, 0px) + 12px);
+  display:flex; flex-direction:column; gap:10px; z-index:2000;
+}
+.icon-btn{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:42px; height:42px; border-radius:50%;
+  border:0; background:#fff; color:var(--prim); cursor:pointer;
+  box-shadow:var(--shadow-1);
+  transition:background .18s ease, transform .06s ease, color .18s ease;
+}
+.icon-btn:hover{ background:#eef4ff; color:var(--prim-strong) }
+.icon-btn:active{ transform: translateY(1px) }
+.icon-btn svg{ width:20px; height:20px }
+
+/* ========== Toast (มุมซ้ายล่าง) ========== */
+.toast{
+  position:absolute; left:12px; bottom:calc(12px + env(safe-area-inset-bottom,0px)); z-index:2001;
+  background:rgba(32,33,36,.92); color:#fff; padding:10px 14px; border-radius:10px; box-shadow:var(--shadow-1);
+  font-size:.95rem; max-width:80vw; pointer-events:none;
+}
+.toast.error{ background:rgba(194,40,36,.95) }
+
+/* ========== Leaflet cosmetics ========== */
+.leaflet-control-zoom{ display:block !important; }
+.leaflet-bottom.leaflet-right .leaflet-control{
+  margin:0 12px 12px 0 !important; /* ระยะขวาล่าง */
+}
+
+/* ========== Severity text colors ========== */
+.sev-none, .sev-low{ color:#0a0; font-weight:700; }
+.sev-mid{ color:#d4a000; font-weight:700; }
+.sev-high{ color:#d00; font-weight:700; }
+
+/* ========== PGA Legend (มุมซ้ายล่าง) ========== */
+.legend{
+  position:fixed;
+  left:12px;
+  bottom:calc(64px + env(safe-area-inset-bottom, 0px));
+  z-index:1002;
+
+  padding:10px 12px;
+  width:220px;   /* กะทัดรัดพอดีสายตา */
+}
+.legend-title{
+  font-weight:600; 
+  font-size:12px; color:#000; 
+  margin-bottom:2px;
+}
+.legend-bar{ height:10px; }
+.legend-labels{
+  display:flex; justify-content:space-between; 
+  font-size:12px; color:#000; 
+  margin-top:2px;
+}
+
+/* ========== Modal (simulate) ========== */
+.modal-backdrop{
+  position:fixed; inset:0; z-index:2002;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(0,0,0,.35);
+  backdrop-filter: blur(2px);
+}
+.modal{
+  background:#fff; border:1px solid var(--border); border-radius:16px;
+  box-shadow:var(--shadow-2); width:340px; max-width:calc(100% - 24px);
+  padding:12px 14px;
+}
+.modal-title{ margin:4px 2px 12px; font-weight:600; font-size:18px }
+.modal-body .row{ display:flex; flex-direction:column; gap:6px; margin-bottom:10px }
+.modal-body label{ font-size:13px; color:#444 }
+.modal-body input{
+  width:100%; border:1px solid var(--border); border-radius:10px; padding:10px 12px; font-size:14px;
+}
+.modal-body input:focus{
+  outline:none; border-color:#e0e3e7;
+  box-shadow:0 0 0 3px rgba(66,133,244,.15);
+}
+.modal-actions{ display:flex; gap:10px; justify-content:flex-end; margin-top:6px }
+.btn-primary, .btn-secondary{
+  border:0; border-radius:10px; padding:8px 14px; cursor:pointer; font-weight:600;
+  box-shadow:var(--shadow-1);
+}
+.btn-primary{ background:#eef4ff; color:var(--prim) }
+.btn-primary:hover{ background:#e1ecff }
+.btn-secondary{ background:#f1f3f4; color:#202124 }
+.btn-secondary:hover{ background:#e8eaed }
+
+/* ========== Responsive tweaks ========== */
+@media (max-width: 720px){
+  .controls{ left:10px; right:10px; padding:8px; gap:8px }
+  .searchbox{ max-width:100% }
+  .searchbox input{ font-size:16px; padding:12px 12px }
+  .searchbox button{ min-width:68px; padding:0 12px }
+  .ac{ max-height:40vh }
+  .legend{ width:200px }
+  .nickbox{ max-width:100% }
+}
+/* ใส่ใน style.css */
+/* ซ่อนของช่างเป็นค่าเริ่มต้น */
+.ops-only { display: none !important; }
+
+/* พอเข้าโหมดช่างให้แสดง */
+.ops-mode .ops-only { display: inline-flex !important; }  /* หรือ block ตามปุ่มของคุณ */
