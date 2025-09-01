@@ -73,7 +73,7 @@ html,body{
   display:flex; align-items:center; gap:8px;
   background:#fff; border:1px solid var(--border); border-radius:28px;
   padding:6px 8px; box-shadow:var(--shadow-1);
-  max-width:260px;
+  max-width:230px;
 }
 .nickbox input{
   flex:1 1 auto; min-width:0; border:0; outline:0; background:transparent;
