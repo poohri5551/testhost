@@ -918,12 +918,12 @@ function updateUserMarkerPopup(){
 
       // ป้าย MMI (ยังคงใช้สีจริงของ MMI) + เฉดสี overlay
       popup += `
-        <br><div class="mmi-row">
+        <br>
+        <div class="mmi-row">
           <span>MMI :</span>
           <span class="mmi-chip" style="background:${m.color};">
             ${m.code}
           </span>
-          <span class="pga-chip" style="background:${mmiOverlayColor}" title="เฉดสีแผนที่"></span>
 
           <button
             type="button"
