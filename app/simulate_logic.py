@@ -69,38 +69,49 @@ except Exception as e:
 
 
 def _thai_region_from_epicenter(lat: float, lon: float) -> str:
-    """
-    แบ่งโซนแบบง่ายด้วย bounding box สำหรับประเทศไทย
-    ใช้ lat/lon ของจุดศูนย์กลางเหตุการณ์
-    """
     lat = float(lat)
     lon = float(lon)
 
-    # ภาคใต้: คาบสมุทรไทย
-    if lat < 11.0:
+    # กันค่าหลุดนอกไทย
+    if not (5.0 <= lat <= 21.5 and 97.0 <= lon <= 106.5):
+        return "north"
+
+    # -------- south --------
+    if lat < 10.8:
         return "south"
 
-    # ภาคตะวันตก
-    if 11.0 <= lat <= 19.5 and 98.0 <= lon <= 99.8:
+    if lat < 11.8 and lon >= 98.0:
+        return "south"
+
+    if lat < 12.3 and lon >= 98.5:
+        return "south"
+
+    # -------- west --------
+    # ตาก / แนวตะวันตกตอนบน
+    if 15.0 <= lat <= 19.8 and 97.4 <= lon < 98.0:
         return "west"
 
-    # ที่เหลือโยนเข้า north/default
+    # กาญจนบุรี / ราชบุรี / เพชรบุรี
+    if 11.8 <= lat < 15.0 and 98.0 <= lon <= 99.0:
+        return "west"
+
+    # ที่เหลือให้เป็น north/default
     return "north"
 
 
 def _get_mmi_model_for_region(lat: float | None, lon: float | None):
-    """
-    คืน (model, region_name)
-    fallback ไป MMI_MODEL ถ้ายังหาโมเดลเฉพาะภาคไม่ได้
-    """
     if lat is None or lon is None:
+        print("[MMI_MODEL] region fallback=default because lat/lon missing")
         return MMI_MODEL, "default"
 
     region = _thai_region_from_epicenter(lat, lon)
     model = MMI_MODELS.get(region)
 
     if model is None:
+        print(f"[MMI_MODEL] region={region} but model missing -> fallback default")
         model = MMI_MODEL
+    else:
+        print(f"[MMI_MODEL] selected region={region} lat={lat} lon={lon}")
 
     return model, region
 
