@@ -874,18 +874,16 @@ def compute_overlay_from_event(ev: dict):
         soil = None
 
     popup_html = f"""
-<div style="line-height:1.5; font-size:1.2em; color:red; padding:4px; text-align:center;">
-  <strong>แผ่นดินไหว</strong><br>
-</div>
-<div style="line-height:1.2; font-size:1.05em">
-  วันเวลา: <b>{time_th_fmt} น.</b><br>
-  ขนาด: <b>{_fmt_num(mag, 2)}</b><br>
-  จุดศูนย์กลาง: <b>{region_text}</b><br>
-  ค่าระดับการสั่นสะเทือนสูงสุด: <b><span style="color:red;">{_fmt_num(pga_max, 4)}</span> %g</b><br>
-  ชั้นดิน: <b>{(soil.get('site_class') if soil else None) or '-'}</b> {(('('+soil.get('desc_th')+')') if soil and soil.get('desc_th') else '')}<br>
-  Vs30: <b>{(_fmt_num(soil.get('vs30_ms'), 0) if soil and soil.get('vs30_ms') is not None else '-')}</b> m/s<br>
-</div>
-""".strip()
+    <div style="line-height:1.5; font-size:1.2em; color:red; padding:4px; text-align:center;">
+      <strong>แผ่นดินไหว</strong><br>
+    </div>
+    <div style="line-height:1.2; font-size:1.05em">
+      วันเวลา: <b>{time_th_fmt} น.</b><br>
+      ขนาด: <b>{_fmt_num(mag, 2)}</b><br>
+      จุดศูนย์กลาง: <b>{region_text}</b><br>
+      ค่าระดับการสั่นสะเทือนสูงสุด: <b><span style="color:red;">{_fmt_num(pga_max, 4)}</span> %g</b><br>
+    </div>
+    """.strip()
 
     meta = {
         "time_th": time_th_fmt,
