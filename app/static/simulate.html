@@ -1513,13 +1513,32 @@ function compactAddressTH(data, fallback = ''){
       const pgaEl    = document.getElementById('mmiPGA');
       const modal    = document.getElementById('mmiModal');
 
-      titleEl.textContent = `รายละเอียดความรุนแรง (MMI ${code})`;
+      titleEl.textContent = `รายละเอียดความรุนแรง`;
       badgeEl.textContent = `MMI ${code}`;
       badgeEl.style.background = m.color;
-
-      descEl.innerHTML = `<b>ความรู้สึก :</b> ${m.shake}`;
-      damageEl.innerHTML = `<b>ความเสียหายโดยทั่วไป :</b> ${m.damage}`;
-      adviceEl.innerHTML = `<b>คำแนะนำ :</b> ${MMI_ADVICE[code] || '-'}`;
+      badgeEl.style.color = '#111';
+      badgeEl.style.border = '1px solid rgba(17,24,39,.08)';
+      
+      descEl.innerHTML = `
+        <div class="mmi-detail-card">
+          <div class="mmi-detail-label">ความรู้สึก</div>
+          <div class="mmi-detail-value">${m.shake}</div>
+        </div>
+      `;
+      
+      damageEl.innerHTML = `
+        <div class="mmi-detail-card">
+          <div class="mmi-detail-label">ความเสียหายโดยทั่วไป</div>
+          <div class="mmi-detail-value">${m.damage}</div>
+        </div>
+      `;
+      
+      adviceEl.innerHTML = `
+        <div class="mmi-detail-card mmi-detail-card-accent">
+          <div class="mmi-detail-label">คำแนะนำ</div>
+          <div class="mmi-detail-value">${MMI_ADVICE[code] || '-'}</div>
+        </div>
+      `;
 
       
 
