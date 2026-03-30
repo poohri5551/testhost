@@ -887,3 +887,125 @@ html,body{
 #reportMMISelect option[value="8"]  { background:#ffb0b0; color:#8f1111; }
 #reportMMISelect option[value="9"]  { background:#ff9494; color:#951313; }
 #reportMMISelect option[value="10"] { background:#ff5f5f; color:#7a0000; font-weight:700; }
+
+.mmi-model-label{
+  font-size: 14px;
+  font-weight: 600;
+  color: #000000;
+  margin-left: 6px;
+  white-space: nowrap;
+}
+
+
+
+#mmiModal{
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+#mmiModal .modal,
+#mmiModal .report-mmi-modal{
+  width: 520px;
+  max-width: calc(100% - 24px);
+  border-radius: 26px;
+  padding: 22px 20px 18px;
+  border: 1px solid rgba(255,255,255,.35);
+  background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(245,249,255,.97));
+  box-shadow:
+    0 24px 60px rgba(16,24,40,.20),
+    0 8px 24px rgba(66,133,244,.10);
+}
+
+#mmiModal .modal-title{
+  margin:0 0 14px 0;
+  padding-right:44px;
+  font-size:28px;
+  line-height:1.2;
+  font-weight:800;
+  color:#111827;
+}
+
+#mmiBadge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:78px;
+  min-height:44px;
+  padding:0 16px;
+  border-radius:16px;
+  font-size:18px;
+  font-weight:800;
+  color:#111 !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(17,24,39,.08),
+    0 8px 18px rgba(15,23,42,.08);
+  margin-bottom:14px;
+}
+
+#mmiModal .modal-close{
+  width:40px;
+  height:40px;
+  top:14px;
+  right:14px;
+  border-radius:12px;
+  background:#f7f8fa;
+  border:1px solid #e5e7eb;
+  color:#475467;
+}
+
+#mmiModal .modal-close:hover{
+  background:#eef2f7;
+  color:#111827;
+}
+
+.mmi-detail-card{
+  margin-top:10px;
+  padding:14px 16px;
+  border-radius:18px;
+  background:rgba(255,255,255,.82);
+  border:1px solid #e8eef8;
+  box-shadow:0 6px 20px rgba(15,23,42,.04);
+}
+
+.mmi-detail-card-accent{
+  background:linear-gradient(180deg, #f6f9ff, #edf4ff);
+  border-color:#dbe7ff;
+}
+
+.mmi-detail-label{
+  font-size:13px;
+  font-weight:700;
+  color:#4b5563;
+  margin-bottom:6px;
+}
+
+.mmi-detail-value{
+  font-size:15px;
+  line-height:1.75;
+  color:#111827;
+  font-weight:600;
+}
+
+@media (max-width: 640px){
+  #mmiModal .modal,
+  #mmiModal .report-mmi-modal{
+    width:100%;
+    max-width:calc(100% - 16px);
+    border-radius:22px;
+    padding:18px 16px 14px;
+  }
+
+  #mmiModal .modal-title{
+    font-size:20px;
+  }
+
+  #mmiBadge{
+    min-height:40px;
+    font-size:16px;
+  }
+
+  .mmi-detail-value{
+    font-size:14px;
+    line-height:1.7;
+  }
+}
