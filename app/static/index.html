@@ -1655,7 +1655,7 @@ function compactAddressTH(data, fallback = '') {
       const descEl   = document.getElementById('mmiDesc');
       const damageEl = document.getElementById('mmiDamage');
       const adviceEl = document.getElementById('mmiAdvice');
-      const soilEl   = document.getElementById('mmiSoil');
+      
       const rangeEl  = document.getElementById('mmiRange');
       const pgaEl    = document.getElementById('mmiPGA');
       const modal    = document.getElementById('mmiModal');
@@ -1669,27 +1669,7 @@ function compactAddressTH(data, fallback = '') {
       adviceEl.innerHTML = `<b>คำแนะนำ :</b> ${MMI_ADVICE[code] || '-'}`;
       
 
-      if (soilEl){
-        if (lastSoilInfo){
-          if (lastSoilInfo.status === 'loading'){
-            soilEl.innerHTML = `ชั้นดิน (Site Class): <i>กำลังค้นหา...</i>`;
-          } else if (lastSoilInfo.status === 'error'){
-            soilEl.innerHTML = `ชั้นดิน (Site Class): <i style="color:#b00">ค้นหาไม่สำเร็จ</i>`;
-          } else if (lastSoilInfo.site_class){
-            const sc = _esc(lastSoilInfo.site_class);
-            const desc = _esc(lastSoilInfo.desc_th || '');
-            const vs30 = (lastSoilInfo.vs30_ms != null) ? Number(lastSoilInfo.vs30_ms).toFixed(0) : '';
-            soilEl.innerHTML =
-              `<b>ข้อมูลชั้นดิน :</b> ${sc}` +
-              `${desc ? ` — ${desc}` : ''}` +
-              `${vs30 ? ` <small>(Vs30≈${vs30} m/s)</small>` : ''}`;
-          } else {
-            soilEl.innerHTML = `ชั้นดิน (Site Class): <i>ไม่พบข้อมูล</i>`;
-          }
-        } else {
-          soilEl.innerHTML = `ชั้นดิน (Site Class): <i>ยังไม่ได้ค้นหา</i>`;
-        }
-      }
+      
 
       modal.style.display = 'flex';
 
