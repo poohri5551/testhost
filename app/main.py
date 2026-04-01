@@ -248,7 +248,7 @@ def append_mmi_report_to_google_sheet(payload: MMIReportRequest):
     service.spreadsheets().values().append(
         spreadsheetId=GOOGLE_SHEETS_SPREADSHEET_ID,
         range=GOOGLE_SHEETS_RANGE,
-        valueInputOption="USER_ENTERED",
+        valueInputOption="RAW",
         insertDataOption="INSERT_ROWS",
         body=body,
     ).execute()
