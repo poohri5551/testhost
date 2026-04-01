@@ -14,7 +14,7 @@ from pydantic import BaseModel
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 import os
 import shutil
 import uuid
@@ -221,8 +221,10 @@ def append_mmi_report_to_google_sheet(payload: MMIReportRequest):
 
     service = build("sheets", "v4", credentials=creds)
 
+    thai_now = datetime.now(timezone(timedelta(hours=7))).strftime("%Y-%m-%d %H:%M:%S")
+
     values = [[
-        datetime.now().isoformat(),
+        thai_now,
         payload.user_uid,
         payload.user_lat,
         payload.user_lon,
