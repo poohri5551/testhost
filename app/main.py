@@ -28,6 +28,10 @@ from . import logic
 from . import simulate_logic
 import joblib
 
+from fastapi import Cookie
+import hashlib
+import hmac
+
 GOOGLE_SHEETS_SPREADSHEET_ID = os.getenv("GOOGLE_SHEETS_SPREADSHEET_ID", "1n6Q5kY7AG3d1bf4C6RIhh4JNao2JubObIeZAKaOoiJc")
 GOOGLE_SHEETS_RANGE = os.getenv("GOOGLE_SHEETS_RANGE", "MMIReports!A:Q")
 GOOGLE_SERVICE_ACCOUNT_FILE = os.getenv("GOOGLE_SERVICE_ACCOUNT_FILE", "/etc/secrets/google-service-account.json")
@@ -57,7 +61,8 @@ class MMIReportRequest(BaseModel):
     distance_km: float | None = None
     estimated_pga_percent_g: float | None = None
     source: str | None = "manual_user_report"
-
+class OpsLoginRequest(BaseModel):
+    code: str
 from .logic import (
     fetch_latest_event_in_thailand,
     compute_overlay_from_event,
