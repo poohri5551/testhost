@@ -706,7 +706,9 @@ document.addEventListener('DOMContentLoaded', ()=>{
       <h3 class="modal-title">ล้าง Pins ทั้งหมด</h3>
       <form id="clearPinsForm" class="modal-body">
         <div class="row">
-          <div>คุณต้องการลบ Pins ทั้งหมดใช่หรือไม่</div>
+          <label>กรอกรหัสยืนยัน
+            <input id="clearCodeInput" type="password" autocomplete="off" placeholder="ใส่รหัส">
+          </label>
         </div>
         <div class="modal-actions">
           <button type="button" id="clearCancel" class="btn-secondary">ยกเลิก</button>
@@ -715,6 +717,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       </form>
     </div>
   </div>
+
 
 
   
@@ -1347,88 +1350,15 @@ function compactAddressTH(data, fallback = '') {
     auth.onAuthStateChanged(u => { currentUser = u || null; if (currentUser) subscribePins(); });
 
     (() => {
-  function setOpsMode(on){
-    document.body.classList.toggle('ops-mode', !!on);
-  }
-
-  async function refreshOpsMode(){
-    try{
-      const r = await fetch('/api/ops/me', {
-        method: 'GET',
-        credentials: 'include'
-      });
-      const data = await r.json();
-      setOpsMode(!!data.is_ops);
-    }catch(e){
-      setOpsMode(false);
-    }
-  }
-
-  async function askCode(){
-    const code = prompt('รหัสสำหรับโหมดลับ:');
-    if(!code) return false;
-
-    try{
-      const r = await fetch('/api/ops/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ code })
-      });
-
-      const data = await r.json();
-
-      if(!r.ok || !data.ok){
-        toast(data?.error || 'รหัสไม่ถูกต้อง', true);
-        setOpsMode(false);
-        return false;
-      }
-
-      setOpsMode(true);
-      toast('เปิดโหมดลับแล้ว');
-      return true;
-    }catch(e){
-      toast('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้', true);
-      setOpsMode(false);
-      return false;
-    }
-  }
-
-  async function exitOpsMode(){
-    try{
-      await fetch('/api/ops/logout', {
-        method: 'POST',
-        credentials: 'include'
-      });
-    }catch(e){}
-    setOpsMode(false);
-    toast('ออกจากโหมดลับแล้ว');
-  }
-
-  setOpsMode(false);
-
-  document.addEventListener('keydown', e => {
-    if (e.altKey && e.shiftKey && e.code === 'KeyO'){
-      e.preventDefault();
-      askCode();
-    }
-  });
-
-  let taps = 0, last = 0;
-  document.addEventListener('click', e => {
-    const inTopRight = e.clientX > (innerWidth - 120) && e.clientY < 120;
-    if(!inTopRight) return;
-    const now = Date.now();
-    taps = (now - last < 600) ? taps + 1 : 1;
-    last = now;
-    if(taps >= 5){
-      taps = 0;
-      askCode();
-    }
-  });
-
-  window.exitOpsMode = exitOpsMode;
-})();
+      const OPS_CODE='123456', OPS_TTL_MS=60*1000, LS_KEY='opsModeUntil', q=new URLSearchParams(location.search);
+      function setOpsMode(on){ on ? localStorage.setItem(LS_KEY, String(Date.now()+OPS_TTL_MS)) : localStorage.removeItem(LS_KEY); document.body.classList.toggle('ops-mode', on); }
+      function isOpsMode(){ const exp=+localStorage.getItem(LS_KEY)||0; if(exp && Date.now()<exp) return true; localStorage.removeItem(LS_KEY); return false; }
+      function askCode(){ const code=prompt('รหัสสำหรับโหมดลับ:'); if(!code) return false; if(code===OPS_CODE){ setOpsMode(true); toast('เปิดโหมดลับแล้ว'); return true; } toast('รหัสไม่ถูกต้อง', true); return false; }
+      if (q.get('ops')==='1'){ setOpsMode(true); history.replaceState({}, '', location.pathname + location.hash); } else { setOpsMode(isOpsMode()); }
+      document.addEventListener('keydown', e=>{ if (e.altKey && e.shiftKey && e.code==='KeyO'){ e.preventDefault(); askCode(); } });
+      let taps=0,last=0; document.addEventListener('click', e=>{ const inTopRight = e.clientX>(innerWidth-120)&&e.clientY<120; if(!inTopRight) return; const now=Date.now(); taps = (now-last<600)?taps+1:1; last=now; if(taps>=5){ taps=0; askCode(); } });
+      window.exitOpsMode=()=>setOpsMode(false);
+    })();
 
 ﻿    let currentNickname='';
     function loadNickname(){ try{ currentNickname = localStorage.getItem('nick') || ''; }catch(e){ currentNickname=''; } }
@@ -1690,56 +1620,41 @@ function compactAddressTH(data, fallback = '') {
 
     /* ====== Clear Pins ====== */
     (function(){
-  const modal=document.getElementById('clearPinsModal');
-  const form=document.getElementById('clearPinsForm');
-  const btn=document.getElementById('clearPinsBtn');
-  const btnCancel=document.getElementById('clearCancel');
+      const CLEAR_CODE="123456";
+      const modal=document.getElementById('clearPinsModal');
+      const form=document.getElementById('clearPinsForm');
+      const input=document.getElementById('clearCodeInput');
+      const btn=document.getElementById('clearPinsBtn');
+      const btnCancel=document.getElementById('clearCancel');
 
-  function showClearModal(show=true){
-    if(!modal) return;
-    modal.style.display = show ? 'flex' : 'none';
-  }
+      function showClearModal(show=true){ if(!modal) return; modal.style.display = show ? 'flex' : 'none'; if (show){ input.value=""; setTimeout(()=>input?.focus(), 50); } }
 
-  async function deletePinsBatch(limit=300){
-    const FieldPath=firebase.firestore.FieldPath;
-    const snap=await db.collection('pins').orderBy(FieldPath.documentId()).limit(limit).get();
-    if (snap.empty) return 0;
-    const batch=db.batch();
-    snap.forEach(doc=>batch.delete(doc.ref));
-    await batch.commit();
-    return snap.size;
-  }
+      async function deletePinsBatch(limit=300){
+        const FieldPath=firebase.firestore.FieldPath;
+        const snap=await db.collection('pins').orderBy(FieldPath.documentId()).limit(limit).get();
+        if (snap.empty) return 0;
+        const batch=db.batch(); snap.forEach(doc=>batch.delete(doc.ref)); await batch.commit(); return snap.size;
+      }
+      async function clearAllPins(){
+        btn.disabled=true; toast('กำลังลบ Pins ทั้งหมด…');
+        let total=0, removed;
+        try{ do{ removed=await deletePinsBatch(300); total+=removed; }while(removed>0);
+             toast(`ลบ Pins ทั้งหมดสำเร็จ (${total} รายการ)`); }
+        catch(e){ console.error(e); toast('ลบ Pins ไม่สำเร็จ: ' + (e.message || e), true); }
+        finally{ btn.disabled=false; }
+      }
 
-  async function clearAllPins(){
-    btn.disabled=true;
-    toast('กำลังลบ Pins ทั้งหมด…');
-    let total=0, removed;
-    try{
-      do{
-        removed=await deletePinsBatch(300);
-        total+=removed;
-      }while(removed>0);
-      toast(`ลบ Pins ทั้งหมดสำเร็จ (${total} รายการ)`);
-    }catch(e){
-      console.error(e);
-      toast('ลบ Pins ไม่สำเร็จ: ' + (e.message || e), true);
-    }finally{
-      btn.disabled=false;
-    }
-  }
-
-  btn?.addEventListener('click', ()=> showClearModal(true));
-  btnCancel?.addEventListener('click', ()=> showClearModal(false));
-  modal?.addEventListener('click', e=>{ if (e.target===modal) showClearModal(false); });
-
-  form?.addEventListener('submit', async e=>{
-    e.preventDefault();
-    if(!confirm('ยืนยันลบ Pins ทั้งหมดใช่ไหม?')) return;
-
-    showClearModal(false);
-    await clearAllPins();
-  });
-})();
+      btn?.addEventListener('click', ()=> showClearModal(true));
+      btnCancel?.addEventListener('click', ()=> showClearModal(false));
+      modal?.addEventListener('click', e=>{ if (e.target===modal) showClearModal(false); });
+      form?.addEventListener('submit', async e=>{
+        e.preventDefault();
+        const code=(input.value||"").trim();
+        if(!code) return toast('กรุณากรอกรหัส', true);
+        if(code!==CLEAR_CODE) return toast('รหัสไม่ถูกต้อง', true);
+        showClearModal(false); await clearAllPins();
+      });
+    })();
 
     /* ====== Modal รายละเอียด MMI ====== */
     function showMMIDetail(code, pgaVal){
