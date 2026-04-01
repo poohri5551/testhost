@@ -706,9 +706,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       <h3 class="modal-title">ล้าง Pins ทั้งหมด</h3>
       <form id="clearPinsForm" class="modal-body">
         <div class="row">
-          <label>กรอกรหัสยืนยัน
-            <input id="clearCodeInput" type="password" autocomplete="off" placeholder="ใส่รหัส">
-          </label>
+          <div>คุณต้องการลบ Pins ทั้งหมดใช่หรือไม่</div>
         </div>
         <div class="modal-actions">
           <button type="button" id="clearCancel" class="btn-secondary">ยกเลิก</button>
@@ -717,7 +715,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
       </form>
     </div>
   </div>
-
 
 
   
@@ -1620,41 +1617,56 @@ function compactAddressTH(data, fallback = '') {
 
     /* ====== Clear Pins ====== */
     (function(){
-      const CLEAR_CODE="123456";
-      const modal=document.getElementById('clearPinsModal');
-      const form=document.getElementById('clearPinsForm');
-      const input=document.getElementById('clearCodeInput');
-      const btn=document.getElementById('clearPinsBtn');
-      const btnCancel=document.getElementById('clearCancel');
+  const modal=document.getElementById('clearPinsModal');
+  const form=document.getElementById('clearPinsForm');
+  const btn=document.getElementById('clearPinsBtn');
+  const btnCancel=document.getElementById('clearCancel');
 
-      function showClearModal(show=true){ if(!modal) return; modal.style.display = show ? 'flex' : 'none'; if (show){ input.value=""; setTimeout(()=>input?.focus(), 50); } }
+  function showClearModal(show=true){
+    if(!modal) return;
+    modal.style.display = show ? 'flex' : 'none';
+  }
 
-      async function deletePinsBatch(limit=300){
-        const FieldPath=firebase.firestore.FieldPath;
-        const snap=await db.collection('pins').orderBy(FieldPath.documentId()).limit(limit).get();
-        if (snap.empty) return 0;
-        const batch=db.batch(); snap.forEach(doc=>batch.delete(doc.ref)); await batch.commit(); return snap.size;
-      }
-      async function clearAllPins(){
-        btn.disabled=true; toast('กำลังลบ Pins ทั้งหมด…');
-        let total=0, removed;
-        try{ do{ removed=await deletePinsBatch(300); total+=removed; }while(removed>0);
-             toast(`ลบ Pins ทั้งหมดสำเร็จ (${total} รายการ)`); }
-        catch(e){ console.error(e); toast('ลบ Pins ไม่สำเร็จ: ' + (e.message || e), true); }
-        finally{ btn.disabled=false; }
-      }
+  async function deletePinsBatch(limit=300){
+    const FieldPath=firebase.firestore.FieldPath;
+    const snap=await db.collection('pins').orderBy(FieldPath.documentId()).limit(limit).get();
+    if (snap.empty) return 0;
+    const batch=db.batch();
+    snap.forEach(doc=>batch.delete(doc.ref));
+    await batch.commit();
+    return snap.size;
+  }
 
-      btn?.addEventListener('click', ()=> showClearModal(true));
-      btnCancel?.addEventListener('click', ()=> showClearModal(false));
-      modal?.addEventListener('click', e=>{ if (e.target===modal) showClearModal(false); });
-      form?.addEventListener('submit', async e=>{
-        e.preventDefault();
-        const code=(input.value||"").trim();
-        if(!code) return toast('กรุณากรอกรหัส', true);
-        if(code!==CLEAR_CODE) return toast('รหัสไม่ถูกต้อง', true);
-        showClearModal(false); await clearAllPins();
-      });
-    })();
+  async function clearAllPins(){
+    btn.disabled=true;
+    toast('กำลังลบ Pins ทั้งหมด…');
+    let total=0, removed;
+    try{
+      do{
+        removed=await deletePinsBatch(300);
+        total+=removed;
+      }while(removed>0);
+      toast(`ลบ Pins ทั้งหมดสำเร็จ (${total} รายการ)`);
+    }catch(e){
+      console.error(e);
+      toast('ลบ Pins ไม่สำเร็จ: ' + (e.message || e), true);
+    }finally{
+      btn.disabled=false;
+    }
+  }
+
+  btn?.addEventListener('click', ()=> showClearModal(true));
+  btnCancel?.addEventListener('click', ()=> showClearModal(false));
+  modal?.addEventListener('click', e=>{ if (e.target===modal) showClearModal(false); });
+
+  form?.addEventListener('submit', async e=>{
+    e.preventDefault();
+    if(!confirm('ยืนยันลบ Pins ทั้งหมดใช่ไหม?')) return;
+
+    showClearModal(false);
+    await clearAllPins();
+  });
+})();
 
     /* ====== Modal รายละเอียด MMI ====== */
     function showMMIDetail(code, pgaVal){
