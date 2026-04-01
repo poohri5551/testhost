@@ -2137,7 +2137,6 @@ function formatUploadModelResult(data) {
     `ชื่อโมเดล        : ${data?.label || '-'}`,
     `ชื่อไฟล์          : ${data?.filename || '-'}`,
     `ตำแหน่งที่บันทึก : ${data?.saved_to || '-'}`,
-    `sync ไปยังโมดูล  : ${syncedModules}`,
     data?.message ? `ข้อความจากระบบ   : ${data.message}` : null,
   ].filter(Boolean).join('\n');
 }
