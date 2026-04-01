@@ -32,6 +32,11 @@ GOOGLE_SHEETS_SPREADSHEET_ID = os.getenv("GOOGLE_SHEETS_SPREADSHEET_ID", "1n6Q5k
 GOOGLE_SHEETS_RANGE = os.getenv("GOOGLE_SHEETS_RANGE", "MMIReports!A:Q")
 GOOGLE_SERVICE_ACCOUNT_FILE = os.getenv("GOOGLE_SERVICE_ACCOUNT_FILE", "/etc/secrets/google-service-account.json")
 
+OPS_SECRET_CODE = os.getenv("OPS_SECRET_CODE", "123456")
+OPS_SESSION_SECRET = os.getenv("OPS_SESSION_SECRET", "dev-secret-change-this")
+OPS_COOKIE_NAME = os.getenv("OPS_COOKIE_NAME", "ops_session")
+OPS_SESSION_TTL_SEC = int(os.getenv("OPS_SESSION_TTL_SEC", "300"))
+
 class MMIReportRequest(BaseModel):
     user_uid: str | None = None
     user_lat: float
@@ -391,7 +396,8 @@ def api_run(body: dict = Body(default_factory=dict)):
 
 # รีเฟรชเหตุการณ์ล่าสุดแบบบังคับ (สำหรับแอดมิน/DevTools)
 @app.post("/api/refresh")
-def api_refresh():
+def api_refresh(ops_session: str | None = Cookie(default=None, alias=OPS_COOKIE_NAME)):
+    require_ops(ops_session)
     try:
         data = _get_or_compute(force=True)
         return JSONResponse({"ok": True, "meta": data.get("meta", {}), "event_key": _CACHE["event_key"]})
