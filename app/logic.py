@@ -104,51 +104,74 @@ def _normalize_thai_province_name(name: str | None) -> str:
     s = s.replace("จังหวัด", "").replace("จ.", "").strip()
     return s
 
-def _thai_region_from_epicenter(lat: float, lon: float) -> str:
+def _point_in_box(lat: float, lon: float, box: dict) -> bool:
+    return (
+        box["lat_min"] <= lat <= box["lat_max"]
+        and box["lon_min"] <= lon <= box["lon_max"]
+    )
+
+# กำหนด block ตามภาพแบบ "ชัดเจน"
+REGION_BLOCKS = {
+    "south": [
+        # ใต้ตอนล่างทั้งหมด
+        {"lat_min": 5.0, "lat_max": 10.80, "lon_min": 97.0, "lon_max": 106.5},
+
+        # คอคอด-ใต้ตอนบน
+        {"lat_min": 10.80, "lat_max": 11.80, "lon_min": 98.00, "lon_max": 101.80},
+        {"lat_min": 11.80, "lat_max": 12.35, "lon_min": 98.45, "lon_max": 100.80},
+    ],
+    "west": [
+        # ตาก / แนวตะวันตกตอนบน
+        {"lat_min": 15.00, "lat_max": 19.90, "lon_min": 97.35, "lon_max": 98.25},
+
+        # กาญจนบุรี / ราชบุรี / เพชรบุรี / ประจวบฯ ตอนบน
+        {"lat_min": 11.70, "lat_max": 15.00, "lon_min": 98.00, "lon_max": 99.25},
+    ],
+}
+
+def _thai_region_from_epicenter(lat: float, lon: float, changwat: str | None = None) -> str:
     lat = float(lat)
     lon = float(lon)
+    cw = _normalize_thai_province_name(changwat)
 
-    # กันค่าหลุดนอกไทย
+    # 1) province override ก่อน
+    if cw in SOUTH_PROVINCES:
+        return "south"
+    if cw in WEST_PROVINCES:
+        return "west"
+    if cw in NORTH_PROVINCES:
+        return "north"
+
+    # 2) กันค่าหลุดนอกไทย
     if not (5.0 <= lat <= 21.5 and 97.0 <= lon <= 106.5):
         return "north"
 
-    # -------- south --------
-    if lat < 10.8:
-        return "south"
+    # 3) block routing ตามแผนที่
+    for region_name in ("south", "west"):
+        for box in REGION_BLOCKS[region_name]:
+            if _point_in_box(lat, lon, box):
+                return region_name
 
-    if lat < 11.8 and lon >= 98.0:
-        return "south"
-
-    if lat < 12.3 and lon >= 98.5:
-        return "south"
-
-    # -------- west --------
-    # ตาก / แนวตะวันตกตอนบน
-    if 15.0 <= lat <= 19.8 and 97.4 <= lon < 98.0:
-        return "west"
-
-    # กาญจนบุรี / ราชบุรี / เพชรบุรี
-    if 11.8 <= lat < 15.0 and 98.0 <= lon <= 99.0:
-        return "west"
-
-    # ที่เหลือให้เป็น north/default
+    # 4) fallback
     return "north"
 
-
-
-def _get_mmi_model_for_region(lat: float | None, lon: float | None):
+def _get_mmi_model_for_region(
+    lat: float | None,
+    lon: float | None,
+    changwat: str | None = None,
+):
     if lat is None or lon is None:
         print("[MMI_MODEL] region fallback=default because lat/lon missing")
         return MMI_MODEL, "default"
 
-    region = _thai_region_from_epicenter(lat, lon)
+    region = _thai_region_from_epicenter(lat, lon, changwat=changwat)
     model = MMI_MODELS.get(region)
 
     if model is None:
         print(f"[MMI_MODEL] region={region} but model missing -> fallback default")
         model = MMI_MODEL
     else:
-        print(f"[MMI_MODEL] selected region={region} lat={lat} lon={lon}")
+        print(f"[MMI_MODEL] selected region={region} lat={lat} lon={lon} changwat={changwat}")
 
     return model, region
 
@@ -666,7 +689,7 @@ def compute_overlay_from_event(ev: dict):
     mmi_diff_grid = None
 
 
-    grid_model, grid_model_region = _get_mmi_model_for_region(lat, lon)
+    grid_model, grid_model_region = _get_mmi_model_for_region(lat, lon, changwat=changwat)
     print(f"[MMI_GRID] selected region={grid_model_region} lat={lat} lon={lon}")
 
     if grid_model is not None:
