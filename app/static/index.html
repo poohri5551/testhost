@@ -2117,6 +2117,32 @@ async function loadCurrentModels() {
 
 document.getElementById('btnTrainModel')?.addEventListener('click', trainModelAndDownload);
 document.getElementById('openTrainModal')?.addEventListener('click', loadCurrentModels);
+
+
+function formatUploadModelResult(data) {
+  const targetMap = {
+    default: 'โมเดลหลัก / Default',
+    west: 'ภาคตะวันตก',
+    south: 'ภาคใต้',
+  };
+
+  const syncedModules = Array.isArray(data?.synced_modules) && data.synced_modules.length
+    ? data.synced_modules.join(', ')
+    : '-';
+
+  return [
+    'อัปโหลดโมเดลสำเร็จ',
+    '────────────────────',
+    `ปลายทางที่เลือก : ${targetMap[data?.target] || data?.target || '-'}`,
+    `ชื่อโมเดล        : ${data?.label || '-'}`,
+    `ชื่อไฟล์          : ${data?.filename || '-'}`,
+    `ตำแหน่งที่บันทึก : ${data?.saved_to || '-'}`,
+    `sync ไปยังโมดูล  : ${syncedModules}`,
+    data?.message ? `ข้อความจากระบบ   : ${data.message}` : null,
+  ].filter(Boolean).join('\n');
+}
+
+
 async function uploadModelFileToServer() {
   const fileInput = document.getElementById('uploadModelFile');
   const target = document.getElementById('uploadModelTarget');
@@ -2145,7 +2171,7 @@ async function uploadModelFileToServer() {
       throw new Error(data.error || data.detail || 'อัปโหลดไม่สำเร็จ');
     }
 
-    output.textContent = 'อัปโหลดโมเดลสำเร็จ\n\n' + JSON.stringify(data, null, 2);
+    output.textContent = formatUploadModelResult(data);
   } catch (err) {
     console.error(err);
     output.textContent = 'เกิดข้อผิดพลาด: ' + (err.message || err);
