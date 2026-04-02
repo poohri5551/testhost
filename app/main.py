@@ -44,7 +44,7 @@ APP_DATA_DIR = Path(os.getenv("APP_DATA_DIR", str(Path(__file__).resolve().paren
 MODEL_DIR = Path(os.getenv("MODEL_DIR", str(APP_DATA_DIR / "models")))
 STATE_DIR = Path(os.getenv("STATE_DIR", str(APP_DATA_DIR / "state")))
 
-AUTO_TRAIN_EVERY = int(os.getenv("AUTO_TRAIN_EVERY", "5"))
+AUTO_TRAIN_EVERY = int(os.getenv("AUTO_TRAIN_EVERY", "10000"))
 AUTO_TRAIN_MIN_ROWS = int(os.getenv("AUTO_TRAIN_MIN_ROWS", "30"))
 AUTO_TRAIN_N_ITER = int(os.getenv("AUTO_TRAIN_N_ITER", "25"))
 AUTO_TRAIN_MODEL_TYPE = os.getenv("AUTO_TRAIN_MODEL_TYPE", "classifier")
