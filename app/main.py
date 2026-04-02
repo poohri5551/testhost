@@ -1300,7 +1300,7 @@ def api_download_model(
 
 
 def save_runtime_model(target: str, model_obj):
-    model_dir = Path("app/models")
+    model_dir = MODEL_DIR
     model_dir.mkdir(parents=True, exist_ok=True)
 
     if target == "default":
