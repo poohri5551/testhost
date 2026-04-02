@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from pathlib import Path
-
+import os
 from .features import make_features
 
 
@@ -9,7 +9,7 @@ from .features import make_features
 MMI_MODEL = None
 MMI_MODELS = {}
 
-_MODEL_DIR = Path(__file__).resolve().parent / "models"
+_MODEL_DIR = Path(os.getenv("MODEL_DIR", str(Path(__file__).resolve().parent / "models")))
 _MODEL_PATH = _MODEL_DIR / "mmi_model.joblib"      # north/default
 _MODEL_WEST_PATH = _MODEL_DIR / "mmi_west.joblib"
 _MODEL_SOUTH_PATH = _MODEL_DIR / "mmi_south.joblib"
