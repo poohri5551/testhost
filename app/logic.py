@@ -24,7 +24,7 @@ from pathlib import Path
 MMI_MODEL = None
 MMI_MODELS = {}
 
-_MODEL_DIR = Path(__file__).resolve().parent / "models"
+_MODEL_DIR = Path(os.getenv("MODEL_DIR", str(Path(__file__).resolve().parent / "models")))
 _MODEL_PATH = _MODEL_DIR / "mmi_model.joblib"      # north
 _MODEL_WEST_PATH = _MODEL_DIR / "mmi_west.joblib"
 _MODEL_SOUTH_PATH = _MODEL_DIR / "mmi_south.joblib"
@@ -898,13 +898,13 @@ def compute_overlay_from_event(ev: dict):
 
     popup_html = f"""
     <div style="line-height:1.5; font-size:1.2em; color:red; padding:4px; text-align:center;">
-      <strong>แผ่นดินไหว</strong><br>
+        <strong>แผ่นดินไหว</strong><br>
     </div>
     <div style="line-height:1.2; font-size:1.05em">
-      วันเวลา: <b>{time_th_fmt} น.</b><br>
-      ขนาด: <b>{_fmt_num(mag, 2)}</b><br>
-      จุดศูนย์กลาง: <b>{region_text}</b><br>
-      ค่าระดับการสั่นสะเทือนสูงสุด: <b><span style="color:red;">{_fmt_num(pga_max, 4)}</span> %g</b><br>
+        วันเวลา: <b>{time_th_fmt} น.</b><br>
+        ขนาด: <b>{_fmt_num(mag, 2)}</b><br>
+        จุดศูนย์กลาง: <b>{region_text}</b><br>
+        ค่าระดับการสั่นสะเทือนสูงสุด: <b><span style="color:red;">{_fmt_num(pga_max, 4)}</span> %g</b><br>
     </div>
     """.strip()
 
